@@ -5,7 +5,7 @@
  * @format
  */
 
-import React from 'react';
+import React, {useEffect} from 'react';
 import type {PropsWithChildren} from 'react';
 import {
   SafeAreaView,
@@ -25,11 +25,25 @@ import {
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
 
+import MyTabs from './src/AppStack';
+import {NavigationContainer} from '@react-navigation/native';
+import {createStackNavigator} from '@react-navigation/stack';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+
+import Homescreen from './src/screens/Homescreen';
+import SearchScreen from './src/screens/SearchScreen';
+import DetailScreen from './src/screens/DetailScreen';
+
+import SplashScreen from 'react-native-splash-screen';
+
 type SectionProps = PropsWithChildren<{
   title: string;
 }>;
 
 function Section({children, title}: SectionProps): React.JSX.Element {
+  useEffect(() => {
+    SplashScreen.hide();
+  }, []);
   const isDarkMode = useColorScheme() === 'dark';
   return (
     <View style={styles.sectionContainer}>
@@ -54,45 +68,63 @@ function Section({children, title}: SectionProps): React.JSX.Element {
     </View>
   );
 }
+const Tab = createBottomTabNavigator();
+const Stack = createStackNavigator();
+
+function TabNavigator() {
+  return (
+    <Tab.Navigator
+      screenOptions={{
+        headerShown: false,
+
+        tabBarStyle: {
+          backgroundColor: '#393E46',
+        },
+
+        tabBarActiveTintColor: '#eeeeee',
+        tabBarInactiveTintColor: 'gray',
+        tabBarLabelStyle: {
+          fontSize: 16,
+          fontWeight: 'bold',
+        },
+      }}>
+      <Tab.Screen
+        name="HomeScreen"
+        component={StackNavigator}
+        options={{tabBarLabel: 'Home'}}
+      />
+      <Tab.Screen
+        name="SearchScreen"
+        component={SearchScreen}
+        options={{tabBarLabel: 'Search'}}
+      />
+    </Tab.Navigator>
+  );
+}
+function StackNavigator() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="Home"
+        component={Homescreen}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="Detail"
+        component={DetailScreen}
+        options={{headerShown: false}}
+      />
+    </Stack.Navigator>
+  );
+}
 
 function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
-
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+    // <GestureHandlerRootView style={{flex:1}}>
+    <NavigationContainer>
+      <TabNavigator />
+    </NavigationContainer>
+    // {/* </GestureHandlerRootView> */}
   );
 }
 
